@@ -1,0 +1,38 @@
+from os import listdir
+from os.path import isfile, join
+
+from slugify import slugify
+from celery.schedules import crontab
+import yaml
+from athena.utils.config import ConfigDir
+
+
+def read_schedules_from(jobs_config_dir):
+    jobs_path = jobs_config_dir.path
+    yaml_files = [f for f in listdir(jobs_path) if isfile(join(jobs_path, f)) and f.endswith(".yml")]
+    sched = {}
+    for yaml_file in yaml_files:
+        job_file = jobs_path + '/' + yaml_file
+        with open(job_file, 'r') as f:
+            job = yaml.load(f.read())
+        title = job.get('title')
+        key = slugify(title)
+        schedule = job.get('schedule')
+        minute = schedule.get('minute', '*')
+        hour = schedule.get('hour', '*')
+        day_of_week = schedule.get('day_of_week', '*')
+        day_of_month = schedule.get('day_of_month', '*')
+        month_of_year = schedule.get('month_of_year', '*')
+        sched[key] = {
+            'task': 'athena.scheduling.scheduler.process_job',
+            'schedule': crontab(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month,
+                                month_of_year=month_of_year),
+            'args': (yaml_file,)
+        }
+    return sched
+
+
+BROKER_URL = 'redis://localhost:6379/1'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/1'
+CELERY_TIMEZONE = 'Europe/Amsterdam'
+CELERYBEAT_SCHEDULE = read_schedules_from(ConfigDir().sub('reports'))

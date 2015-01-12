@@ -1,0 +1,10 @@
+boto==2.35.1
+impyla==0.8.1
+click==3.3
+paramiko==1.15.2
+tabulate==0.7.3
+PyYAML==3.11
+celery==3.1.17
+sendgrid==1.2.2
+python-slugify==0.1.0
+jinja2==2.7.3
