@@ -72,7 +72,7 @@ def process_job(name, recipients=None, stdout=False):
             else:
                 raise ValueError("{} contains csv item of unknown type ({})!".format(name, item['type']))
 
-    env = Environment(loader=PackageLoader('scheduling', 'templates'))
+    env = Environment(loader=PackageLoader('athena.scheduling', 'templates'))
     template = env.get_template('datamail.html')
     html = template.render(title=title, description=description, today=today, blocks=blocks)
     if stdout:

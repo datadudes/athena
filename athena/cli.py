@@ -65,8 +65,7 @@ def pig(pig_script, misc_files):
 @click.argument('job', nargs=1, type=click.STRING)
 @click.argument('recipients', nargs=-1, type=click.STRING)
 @click.option('--stdout/--email', default=False)
-@click.option('--async/--sync', default=False)
-def mail(job, recipients, stdout, async):
+def mail(job, recipients, stdout):
     if job == 'list':
         list_jobs()
     else:
@@ -75,10 +74,7 @@ def mail(job, recipients, stdout, async):
                 recipients = None
             if not job.endswith('.yml'):
                 job += '.yml'
-            if async:
-                process_job.delay(job, recipients, stdout)
-            else:
-                process_job(job, recipients, stdout)
+            process_job(job, recipients, stdout)
         except ValueError as e:
             raise click.BadParameter(e.message)
 
