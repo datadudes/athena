@@ -112,11 +112,12 @@ class ConfigDir(object):
 
 class AthenaConfig(object):
 
-    def __init__(self, ssh=None, cluster=None, aws=None, mailing=None):
+    def __init__(self, ssh=None, cluster=None, aws=None, mailing=None, scheduling=None):
         self.ssh = ssh
         self.cluster = cluster
         self.aws = aws
         self.mailing = mailing
+        self.scheduling = scheduling
 
     @staticmethod
     def load(config_file):
@@ -140,7 +141,12 @@ class AthenaConfig(object):
             values['mailing']['sendgrid_password'].strip(),
             values['mailing']['from'].strip()
         )
-        return AthenaConfig(ssh, cluster, aws, mailing)
+        scheduling = SchedulingConfig(
+            values['scheduling']['celery_broker_url'].strip(),
+            values['scheduling']['celery_result_backend'].strip(),
+            values['scheduling']['celery_timezone'].strip()
+        )
+        return AthenaConfig(ssh, cluster, aws, mailing, scheduling)
 
     @staticmethod
     def load_default():
@@ -180,3 +186,11 @@ class MailingConfig(object):
         self.sendgrid_username = sendgrid_username
         self.sendgrid_password = sendgrid_password
         self.from_address = from_address
+
+
+class SchedulingConfig(object):
+
+    def __init__(self, celery_broker_url='', celery_result_backend='', celery_timezone='Europe/Amsterdam'):
+        self.celery_broker_url = celery_broker_url
+        self.celery_result_backend = celery_result_backend
+        self.celery_timezone = celery_timezone
