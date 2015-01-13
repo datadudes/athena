@@ -137,8 +137,10 @@ class AthenaConfig(object):
             values['aws']['secret_access_key'].strip(),
             values['aws']['region'].strip())
         mailing = MailingConfig(
-            values['mailing']['sendgrid_username'].strip(),
-            values['mailing']['sendgrid_password'].strip(),
+            values['mailing']['smtp_host'].strip(),
+            values['mailing']['smtp_port'],
+            values['mailing']['smtp_username'].strip(),
+            values['mailing']['smtp_password'].strip(),
             values['mailing']['from'].strip()
         )
         scheduling = SchedulingConfig(
@@ -182,9 +184,11 @@ class AWSConfig(object):
 
 class MailingConfig(object):
 
-    def __init__(self, sendgrid_username='', sendgrid_password='', from_address=''):
-        self.sendgrid_username = sendgrid_username
-        self.sendgrid_password = sendgrid_password
+    def __init__(self, smtp_host='localhost', smtp_port=25, smtp_username='', smtp_password='', from_address=''):
+        self.smtp_host = smtp_host
+        self.smtp_port = smtp_port
+        self.smtp_username = smtp_username
+        self.smtp_password = smtp_password
         self.from_address = from_address
 
 

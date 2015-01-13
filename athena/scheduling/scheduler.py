@@ -1,6 +1,6 @@
 from celery import Celery
 from jinja2 import Environment, PackageLoader
-import sendgrid
+from mailshake import SMTPMailer, EmailMessage
 import yaml
 from datetime import datetime
 from os import listdir
@@ -82,17 +82,25 @@ def process_job(name, recipients=None, stdout=False):
             print c
     else:
         config = AthenaConfig.load_default()
-        sg = sendgrid.SendGridClient(config.mailing.sendgrid_username, config.mailing.sendgrid_password)
-        message = sendgrid.Mail()
-        message.set_subject("{title} {date}".format(title=title, date=today))
-        message.set_html(html)
-        message.set_text('This mail can only be viewed as HTML')
-        message.set_from(config.mailing.from_address)
-        for recipient in recipients:
-            message.add_to(recipient)
+
+        mailer = SMTPMailer(
+            host=config.mailing.smtp_host,
+            port=config.mailing.smtp_port,
+            username=config.mailing.smtp_username,
+            password=config.mailing.smtp_password
+        )
+
+        email_msg = EmailMessage(
+            subject="{title} {date}".format(title=title, date=today),
+            text="This mail can only be viewed as HTML",
+            from_email=config.mailing.from_address,
+            to=recipients,
+            html=html
+        )
         for c in csvs:
-            message.add_attachment(c['name'], c['path'])
-        status, msg = sg.send(message)
+            email_msg.attach_file(c['path'])
+
+        mailer.send_messages(email_msg)
 
 
 def list_jobs():
