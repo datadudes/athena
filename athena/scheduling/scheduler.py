@@ -87,7 +87,8 @@ def process_job(name, recipients=None, stdout=False):
             host=config.mailing.smtp_host,
             port=config.mailing.smtp_port,
             username=config.mailing.smtp_username,
-            password=config.mailing.smtp_password
+            password=config.mailing.smtp_password,
+            use_tls=config.mailing.smtp_use_tls
         )
 
         email_msg = EmailMessage(

@@ -122,6 +122,7 @@ class AthenaConfig(object):
     @staticmethod
     def load(config_file):
         values = yaml.safe_load(config_file)
+
         impala_port = values['cluster']['impala_port'] if 'impala_port' in values['cluster'] else 21050
         cluster = ClusterConfig(
             values['cluster']['type'].strip(),
@@ -129,25 +130,57 @@ class AthenaConfig(object):
             [slave.strip() for slave in values['cluster']['slaves'].split(',')],
             impala_port
         )
-        ssh = SSHConfig(
-            values['ssh']['username'].strip(),
-            values['ssh']['key_path'].strip())
-        aws = AWSConfig(
-            values['aws']['access_key_id'].strip(),
-            values['aws']['secret_access_key'].strip(),
-            values['aws']['region'].strip())
-        mailing = MailingConfig(
-            values['mailing']['smtp_host'].strip(),
-            values['mailing']['smtp_port'],
-            values['mailing']['smtp_username'].strip(),
-            values['mailing']['smtp_password'].strip(),
-            values['mailing']['from'].strip()
-        )
-        scheduling = SchedulingConfig(
-            values['scheduling']['celery_broker_url'].strip(),
-            values['scheduling']['celery_result_backend'].strip(),
-            values['scheduling']['celery_timezone'].strip()
-        )
+
+        if 'ssh' in values:
+            username = values['ssh']['username'].strip() if 'username' in values['ssh'] else None
+            key_path = values['ssh']['key_path'].strip() if 'key_path' in values['ssh'] else None
+            ssh = SSHConfig(
+                username,
+                key_path
+            )
+        else:
+            # SSH is always used, so we require a default
+            ssh = SSHConfig()
+
+        if 'aws' in values:
+            aws = AWSConfig(
+                values['aws']['access_key_id'].strip(),
+                values['aws']['secret_access_key'].strip(),
+                values['aws']['region'].strip()
+            )
+        else:
+            aws = None
+
+        if 'mailing' in values:
+            smtp_host = values['mailing']['smtp_host'].strip() if 'smtp_host' in values['mailing'] else 'localhost'
+            smtp_port = values['mailing']['smtp_port'] if 'smtp_port' in values['mailing'] else 587
+            smtp_username = values['mailing']['smtp_username'].strip() if 'smtp_username' in values['mailing'] else None
+            smtp_password = values['mailing']['smtp_password'].strip() if 'smtp_password' in values['mailing'] else None
+            smtp_tls = values['mailing']['smtp_use_tls'] if 'smtp_use_tls' in values['mailing'] else True
+            if 'from_address' in values['mailing']:
+                from_address = values['mailing']['from_address'].strip()
+            else:
+                from_address = 'data@example.com'
+            mailing = MailingConfig(
+                smtp_host,
+                smtp_port,
+                smtp_username,
+                smtp_password,
+                from_address,
+                smtp_tls
+            )
+        else:
+            mailing = MailingConfig()
+
+        if 'scheduling' in values:
+            scheduling = SchedulingConfig(
+                values['scheduling']['celery_broker_url'].strip(),
+                values['scheduling']['celery_result_backend'].strip(),
+                values['scheduling']['celery_timezone'].strip()
+            )
+        else:
+            scheduling = None
+
         return AthenaConfig(ssh, cluster, aws, mailing, scheduling)
 
     @staticmethod
@@ -169,14 +202,14 @@ class ClusterConfig(object):
 
 class SSHConfig(object):
 
-    def __init__(self, username='', key_path=''):
+    def __init__(self, username=None, key_path=None):
         self.username = username
         self.key_path = key_path
 
 
 class AWSConfig(object):
 
-    def __init__(self, access_key_id='', secret_access_key='', region=''):
+    def __init__(self, access_key_id=None, secret_access_key=None, region=None):
         self.access_key_id = access_key_id
         self.secret_access_key = secret_access_key
         self.region = region
@@ -184,17 +217,19 @@ class AWSConfig(object):
 
 class MailingConfig(object):
 
-    def __init__(self, smtp_host='localhost', smtp_port=25, smtp_username='', smtp_password='', from_address=''):
+    def __init__(self, smtp_host='localhost', smtp_port=587, smtp_username=None, smtp_password=None,
+                 from_address='data@example.com', smtp_use_tls=True):
         self.smtp_host = smtp_host
         self.smtp_port = smtp_port
         self.smtp_username = smtp_username
         self.smtp_password = smtp_password
+        self.smtp_use_tls = smtp_use_tls
         self.from_address = from_address
 
 
 class SchedulingConfig(object):
 
-    def __init__(self, celery_broker_url='', celery_result_backend='', celery_timezone='Europe/Amsterdam'):
+    def __init__(self, celery_broker_url=None, celery_result_backend=None, celery_timezone='Europe/Amsterdam'):
         self.celery_broker_url = celery_broker_url
         self.celery_result_backend = celery_result_backend
         self.celery_timezone = celery_timezone
