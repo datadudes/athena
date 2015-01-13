@@ -4,7 +4,7 @@ import queries.query as q
 from utils.cluster import get_dns
 from utils.ssh import MasterNodeSSHClient, open_ssh_session
 from utils.tunnel import create_tunnel
-from scheduling.scheduler import process_job, list_jobs
+from broadcasting.mailing import mail_report, list_reports
 
 
 @click.group()
@@ -67,14 +67,14 @@ def pig(pig_script, misc_files):
 @click.option('--stdout/--email', default=False)
 def mail(job, recipients, stdout):
     if job == 'list':
-        list_jobs()
+        list_reports()
     else:
         try:
             if len(recipients) == 0:
                 recipients = None
             if not job.endswith('.yml'):
                 job += '.yml'
-            process_job(job, recipients, stdout)
+            mail_report(job, recipients, stdout)
         except ValueError as e:
             raise click.BadParameter(e.message)
 
