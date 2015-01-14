@@ -116,13 +116,20 @@ $ athena query "SELECT * FROM sample_07 LIMIT 10"
 $ athena query "SELECT * FROM sample_07" --csv sample.csv
 ```
 
+Athena uses [Impyla](https://github.com/cloudera/impyla) under the hood for querying Impala. Because Impyla supports
+getting the results back in chunks, memory will is not an issue here. Even for large resultsets, creating the CSV is no
+problem. The results will just be written to disk in chunks.
+
+The same goes for the `athena batch` command (see below).
+
 **Run a batch of queries defined in a YAML file and save the results to one or more CSV files**
 
 ```bash
 $ athena batch my_queries.yml
 ```
 
-The YAML file you provide, should have the following format:
+The YAML file can be anywhere on your system, as long as you provide the right path. The YAML file you provide, should 
+have the following format:
 
 ```yaml
 - query: <SQL query>                        # e.g. SELECT * FROM foo WHERE bla < 10
@@ -143,7 +150,9 @@ no valid keys in your default SSH directory.
 The output from running the Pig script is returned in your terminal. Any files the Pig script creates on the local file
 system of your master node, are not copied over to your local machine.
 
-more coming soon
+**Create and mail a report**
+
+The report will look [like this](http://htmlpreview.github.io/?https://github.com/datadudes/athena/blob/master/example_report.html)
 
 ## Authors
 
