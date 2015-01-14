@@ -8,6 +8,7 @@ import time
 from athena.utils.config import AthenaConfig
 from cluster import get_dns
 import subprocess
+from os.path import join as path_join
 
 
 def open_ssh_session():
@@ -77,7 +78,7 @@ class MasterNodeSSHClient():
 
     def create_tmp_dir(self, prefix=''):
         scp = SFTPClient.from_transport(self.ssh_client.get_transport())
-        dirpath = '/tmp/' + prefix + str(int(time.time() * 1000))
+        dirpath = path_join('/tmp', prefix + str(int(time.time() * 1000)))
         scp.mkdir(dirpath)
         return dirpath
 
@@ -90,7 +91,7 @@ class MasterNodeSSHClient():
 
         def copy_script(full_path):
             filename = os.path.basename(full_path)
-            dest = tmp_dir + '/' + filename
+            dest = path_join(tmp_dir, filename)
             self.copy(full_path, dest)
 
         copy_script(pig_script)
@@ -101,7 +102,7 @@ class MasterNodeSSHClient():
 
     def run_impala_script(self, impala_script):
         filename = os.path.basename(impala_script)
-        dest = self.create_tmp_dir('impala_scripts') + '/' + filename
+        dest = path_join(self.create_tmp_dir('impala_scripts'), filename)
         self.copy(impala_script, dest)
         cmd = 'impala-shell -i {} -f {}'.format(get_dns(slave=True), dest)
         return self._send_command_and_wait(cmd)

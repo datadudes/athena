@@ -3,7 +3,7 @@ from mailshake import SMTPMailer, EmailMessage
 import yaml
 from datetime import datetime
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join as path_join
 from athena.queries import query_impala, query_to_csv
 from slugify import slugify
 from athena.utils.config import ConfigDir, AthenaConfig
@@ -11,8 +11,8 @@ from athena.utils.file import create_tmp_dir
 
 
 def mail_report(name, recipients=None, stdout=False):
-    jobs_dir = ConfigDir().sub('reports').path
-    job_file = jobs_dir + '/' + name
+    reports_dir = ConfigDir().sub('reports').path
+    job_file = path_join(reports_dir, name)
     if not isfile(job_file):
         raise ValueError("{} does not exist or is not a readable file!".format(name))
     with open(job_file, 'r') as f:
@@ -48,7 +48,7 @@ def mail_report(name, recipients=None, stdout=False):
         tmpdir = create_tmp_dir(prefix=slugify(title, separator='_'))
         for item in csv_items:
             filenameretrieve = item['filename']
-            csv_path = tmpdir + '/' + filenameretrieve
+            csv_path = path_join(tmpdir, filenameretrieve)
             if item['type'] == 'sql':
                 sql_query = item['query']
                 if 'with_variables' in item:
@@ -56,7 +56,7 @@ def mail_report(name, recipients=None, stdout=False):
                     for variable in variables:
                         processed_sql_query = sql_query.replace("{{ variable }}", variable)
                         processed_filename = filenameretrieve.replace("{{ variable }}", variable)
-                        csv_path_instance = tmpdir + '/' + processed_filename
+                        csv_path_instance = path_join(tmpdir, processed_filename)
                         query_to_csv(processed_sql_query, csv_path_instance)
                         print(csv_path_instance)
                         csvs.append({'name': processed_filename, 'path': csv_path_instance})
@@ -101,6 +101,6 @@ def mail_report(name, recipients=None, stdout=False):
 
 def list_reports():
     jobs_dir = ConfigDir().sub('reports').path
-    yaml_files = [f for f in listdir(jobs_dir) if isfile(join(jobs_dir, f)) and f.endswith(".yml")]
+    yaml_files = [f for f in listdir(jobs_dir) if isfile(path_join(jobs_dir, f)) and f.endswith(".yml")]
     for f in yaml_files:
         print f

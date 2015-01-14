@@ -2,6 +2,7 @@ import csv
 import time
 from os import makedirs
 import errno
+from os.path import join as path_join
 
 
 def write_csv(csv_file, rows, headers=None):
@@ -37,6 +38,6 @@ def touchopen(filename, mode='r'):
 
 
 def create_tmp_dir(prefix=''):
-    dirpath = '/tmp/' + prefix + str(int(time.time() * 1000))
+    dirpath = path_join('/tmp', prefix + str(int(time.time() * 1000)))
     mkdir_p(dirpath)
     return dirpath

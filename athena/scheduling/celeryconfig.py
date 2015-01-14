@@ -1,5 +1,5 @@
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join as path_join
 
 from slugify import slugify
 from celery.schedules import crontab
@@ -9,10 +9,10 @@ from athena.utils.config import ConfigDir, AthenaConfig
 
 def read_schedules_from(jobs_config_dir):
     jobs_path = jobs_config_dir.path
-    yaml_files = [f for f in listdir(jobs_path) if isfile(join(jobs_path, f)) and f.endswith(".yml")]
+    yaml_files = [f for f in listdir(jobs_path) if isfile(path_join(jobs_path, f)) and f.endswith(".yml")]
     sched = {}
     for yaml_file in yaml_files:
-        job_file = jobs_path + '/' + yaml_file
+        job_file = path_join(jobs_path, yaml_file)
         with open(job_file, 'r') as f:
             job = yaml.load(f.read())
         title = job.get('title')
