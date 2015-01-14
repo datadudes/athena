@@ -65,7 +65,8 @@ def pig(pig_script, misc_files):
 @click.argument('job', nargs=1, type=click.STRING)
 @click.argument('recipients', nargs=-1, type=click.STRING)
 @click.option('--stdout/--email', default=False)
-def mail(job, recipients, stdout):
+def report(job, recipients, stdout):
+    """ Generate and mail a report, optionally with attachments """
     if job == 'list':
         list_reports()
     else:
