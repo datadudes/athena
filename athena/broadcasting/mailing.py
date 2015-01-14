@@ -51,11 +51,11 @@ def mail_report(name, recipients=None, stdout=False):
             csv_path = path_join(tmpdir, filenameretrieve)
             if item['type'] == 'sql':
                 sql_query = item['query']
-                if 'with_variables' in item:
-                    variables = item['with_variables']
+                if 'with_items' in item:
+                    variables = item['with_items']
                     for variable in variables:
-                        processed_sql_query = sql_query.replace("{{ variable }}", variable)
-                        processed_filename = filenameretrieve.replace("{{ variable }}", variable)
+                        processed_sql_query = sql_query.replace("{{ item }}", variable)
+                        processed_filename = filenameretrieve.replace("{{ item }}", variable)
                         csv_path_instance = path_join(tmpdir, processed_filename)
                         query_to_csv(processed_sql_query, csv_path_instance)
                         print(csv_path_instance)

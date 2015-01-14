@@ -142,12 +142,12 @@ have the following format:
 For repeated queries which only vary slightly, you can use a variable that is substituted with items from a list:
 
 ```yaml
-- query: SELECT * FROM foo WHERE bar = '{{item}} rocks!'
+- query: SELECT * FROM foo WHERE bar = '{{ item }} rocks!'
   with_items:
   - "Spark"
   - "Impala"
   - "Hadoop"
-  output: {{item}}.csv
+  output: {{ item }}.csv
 ```
 
 **Ship a Pig script to the cluster together with some UDFs and run it**
