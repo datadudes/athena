@@ -38,7 +38,7 @@ $ pip install athena[scheduler,aws]
 
 ## Examples
 
-**For some realtime examples in a recorded terminal session, [click here!](https://asciinema.org/a/15439)**
+[![Live examples](terminal.gif)](https://asciinema.org/a/15439)
 
 **Query Impala and show the results in the terminal**
 
