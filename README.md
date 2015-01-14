@@ -139,6 +139,17 @@ have the following format:
 ...
 ```
 
+For repeated queries which only vary slightly, you can use a variable that is substituted with items from a list:
+
+```yaml
+- query: SELECT * FROM foo WHERE bar = '{{item}} rocks!'
+  with_items:
+  - "Spark"
+  - "Impala"
+  - "Hadoop"
+  output: {{item}}.csv
+```
+
 **Ship a Pig script to the cluster together with some UDFs and run it**
 
 ```bash
@@ -151,6 +162,8 @@ The output from running the Pig script is returned in your terminal. Any files t
 system of your master node, are not copied over to your local machine.
 
 **Create and mail a report**
+
+Reports are defined using a YAML file with a simple syntax.
 
 The report will look [like this](http://htmlpreview.github.io/?https://github.com/datadudes/athena/blob/master/example_report.html)
 
