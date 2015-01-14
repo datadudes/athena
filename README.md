@@ -3,9 +3,11 @@ Athena
 ======
 [![Live examples](terminal.gif)](https://asciinema.org/a/15439)
 
-Athena is a convenient command line tool that enables you to interact with and query a Hadoop cluster from your local terminal, removing the need for remote SSH sessions. Athena makes the life of every data scientist and engineer a lot easier by providing comprehensive querying features and easy automation of daily tasks, from the convenience of your local command line!
+Athena is a convenient command line tool that enables you to interact with and query a Hadoop cluster from your local terminal, 
+removing the need for remote SSH sessions. Athena makes the life of every data scientist and engineer a lot easier by providing comprehensive querying features and easy automation of daily tasks, from the convenience of your local command line!
 
-The bulk of Athena's functionality so far was built with Impala in mind, but expect interaction with other parts of your Hadoop cluster to come in the near future!
+The bulk of Athena's functionality so far was built with Impala in mind, but expect interaction with other parts of your 
+Hadoop cluster to come in the near future!
 
 **Features**
 
@@ -18,7 +20,8 @@ The bulk of Athena's functionality so far was built with Impala in mind, but exp
 - Start a distributed copy job by just providing a source and destination. Works with HDFS and S3.
 - Works with static hostnames/IPs or dynamic hostnames for clusters on Amazon Web Services.
 
-All of this works from the local terminal on your laptop/client machine. The only thing Athena needs is either an open port to Impala (for most features) and/or SSH access.
+All of this works from the local terminal on your laptop/client machine. The only thing Athena needs is either an open 
+port to Impala (for most features) and/or SSH access.
 
 ## Installation & Requirements
 
@@ -40,7 +43,8 @@ $ pip install athena[scheduler,aws]
 
 ## Configuration
 
-Configuration is done with one simple YAML file. For most use cases, quite little configuration is needed. Execute the following steps to configure Athena:
+Configuration is done with one simple YAML file. For most use cases, quite little configuration is needed. Execute the 
+following steps to configure Athena:
 
 1. Create a `.athena` directory in your home directory. 
 	- On OS X, this should be: `/Users/myusername/.athena`
@@ -54,11 +58,15 @@ cluster:
   slaves: <comma separated list of hostnames/ips of your slave nodes> # all the other nodes (data nodes)
 ```
 
-The master node is accessed by all functionality requiring SSH access, such as `athena copy`, `athena pig`. The slave nodes are accessed when running queries, making reports, and anything else that involved Impala. Athena assumes the Impala daemon is running on your slave nodes and will randomly choose a node from the list of slave nodes for running a query.
+The master node is accessed by all functionality requiring SSH access, such as `athena copy`, `athena pig`. The slave 
+nodes are accessed when running queries, making reports, and anything else that involved Impala. Athena assumes the 
+Impala daemon is running on your slave nodes and will randomly choose a node from the list of slave nodes for running a 
+query.
 
 #### Complete configuration example
 
-Below is a documented example of all the configuration options with their default values. As you can see, only the `cluster > master` and `cluster > slaves` need to be provided, as they don't have defaults.
+Below is a documented example of all the configuration options with their default values. As you can see, only the 
+`cluster > master` and `cluster > slaves` need to be provided, as they don't have defaults.
 
 ```yaml
 cluster:                            # Basic cluster information
@@ -86,7 +94,13 @@ scheduling:							# Athena uses Celery for scheduling. See Celery documentation 
   celery_timezone: Europe/Amsterdam
 ```
 
-A note on when to use **the _aws_ cluster type**: in most cases the IP addresses and/or hostnames of the master and slave nodes are static and known beforehand. If, however, your Hadoop cluster is running on Amazon Web Services, and it regularly spun-up and torn-down (to save costs, for instance), it becomes cumbersome to have to change the configuration all the time. One way to fix it, is to buy some _elastic ip addresses_ from Amazon and attach them to the nodes each time when spinning up a cluster. Athena provides another way however. If you choose cluster type 'aws', you can provide the _Names_ of your master and slave nodes. This should be the value that is in the _Name_ tag of each of your EC2 machines. See AWS documentation for [more details](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html).
+A note on when to use **the _aws_ cluster type**: in most cases the IP addresses and/or hostnames of the master and 
+slave nodes are static and known beforehand. If, however, your Hadoop cluster is running on Amazon Web Services, and it 
+regularly spun-up and torn-down (to save costs, for instance), it becomes cumbersome to have to change the configuration 
+all the time. One way to fix it, is to buy some _elastic ip addresses_ from Amazon and attach them to the nodes each 
+time when spinning up a cluster. Athena provides another way however. If you choose cluster type 'aws', you can provide 
+the _Names_ of your master and slave nodes. This should be the value that is in the _Name_ tag of each of your EC2 
+machines. See AWS documentation for [more details](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html).
 
 ## Usage guide
 
@@ -108,12 +122,32 @@ $ athena query "SELECT * FROM sample_07" --csv sample.csv
 $ athena batch my_queries.yml
 ```
 
-**Ship a Pig script to the cluster together with some UDFs and run it**
+The YAML file you provide, should have the following format:
 
-_(SSH must be configured for this to work)_
+```yaml
+- query: <SQL query>                        # e.g. SELECT * FROM foo WHERE bla < 10
+  output: <name of the CSV file to create>  # e.g. myresults0.csv
+- query: <SQL query>
+  output: <name of the CSV file to create>
+...
+```
+
+**Ship a Pig script to the cluster together with some UDFs and run it**
 
 ```bash
 $ athena pig calculate_avg_salary.pig my_udfs.py
 ```
+Athena creates an SSH connection to the master node for shipping the script(s) to the cluster. In order for this to work,
+you should provide an SSH _username_ in your configuration. You can optionally provide a path to an SSH key if there are
+no valid keys in your default SSH directory.
+The output from running the Pig script is returned in your terminal. Any files the Pig script creates on the local file
+system of your master node, are not copied over to your local machine.
 
 more coming soon
+
+## Authors
+
+Athena was created with passion by:
+
+[Daan Debie](https://github.com/DandyDev) - [Website](http://dandydev.net/)
+[Marcel Krcah](https://github.com/mkrcah) - [Website](http://marcelkrcah.net/)
