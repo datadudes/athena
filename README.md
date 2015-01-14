@@ -38,7 +38,7 @@ $ pip install athena[scheduler,aws]
 
 ## Examples
 
-<script type="text/javascript" src="https://asciinema.org/a/15439.js" id="asciicast-15439" async data-autoplay="true" data-loop="true"></script>
+**For some realtime examples in a recorded terminal session, [click here!](https://asciinema.org/a/15439)**
 
 **Query Impala and show the results in the terminal**
 
