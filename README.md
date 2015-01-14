@@ -1,7 +1,7 @@
 [![Stories in Ready](https://badge.waffle.io/datadudes/athena.png?label=ready&title=Ready)](https://waffle.io/datadudes/athena)
 Athena
 ======
-Athena is a convenient command line tool that enables you to interact with and query a Hadoop cluster from your local terminal, removing the need for remote SSH sessions. Athena makes the life of every data scientist and engineer a lot easier by providing easy automation of daily tasks, from the convenience of your local command line!
+Athena is a convenient command line tool that enables you to interact with and query a Hadoop cluster from your local terminal, removing the need for remote SSH sessions. Athena makes the life of every data scientist and engineer a lot easier by providing comprehensive querying features and easy automation of daily tasks, from the convenience of your local command line!
 
 The bulk of Athena's functionality so far was built with Impala in mind, but expect interaction with other parts of your Hadoop cluster to come in the near future!
 
