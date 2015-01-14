@@ -1,7 +1,7 @@
 [![Stories in Ready](https://badge.waffle.io/datadudes/athena.png?label=ready&title=Ready)](https://waffle.io/datadudes/athena)
 Athena
 ======
-Athena is a convenient command line tool that enables you to interact with and query a Hadoop cluster from your local terminal. This means you don't have to start an SSH session every time you want to query Impala or run a Pig script. It also allows you to quickly save results to CSV files, and send reports. To summarize, Athena makes the life of every data scientist and engineer a lot easier by providing easy automation of daily tasks, from the convenience of your local command line!
+Athena is a convenient command line tool that enables you to interact with and query a Hadoop cluster from your local terminal, removing the need for remote SSH sessions. Athena makes the life of every data scientist and engineer a lot easier by providing easy automation of daily tasks, from the convenience of your local command line!
 
 The bulk of Athena's functionality so far was built with Impala in mind, but expect interaction with other parts of your Hadoop cluster to come in the near future!
 
@@ -110,9 +110,13 @@ aws:                                # Amazon Web Services credentials for using 
   access_key_id: <empty>
   secret_access_key: <empty>
   region: <empty>
+scheduling:							# Athena uses Celery for scheduling. See Celery documentation for details
+  celery_broker_url: <empty>
+  celery_result_backend: <empty>
+  celery_timezone: Europe/Amsterdam
 ```
 
-A note on when to use the _aws_ cluster type: in most cases the IP addresses and/or hostnames of the master and slave nodes are static and known beforehand. If, however, your Hadoop cluster is running on Amazon Web Services, and it regularly spun-up and torn-down (to save costs, for instance), it becomes cumbersome to have to change the configuration all the time. One way to fix it, is to buy some _elastic ip addresses_ from Amazon and attach them to the nodes each time when spinning up a cluster. Athena provides another way however. If you choose cluster type 'aws', you can provide the _Names_ of your master and slave nodes. This should be the value that is in the _Name_ tag of each of your EC2 machines. See AWS documentation for [more details](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html).
+A note on when to use **the _aws_ cluster type**: in most cases the IP addresses and/or hostnames of the master and slave nodes are static and known beforehand. If, however, your Hadoop cluster is running on Amazon Web Services, and it regularly spun-up and torn-down (to save costs, for instance), it becomes cumbersome to have to change the configuration all the time. One way to fix it, is to buy some _elastic ip addresses_ from Amazon and attach them to the nodes each time when spinning up a cluster. Athena provides another way however. If you choose cluster type 'aws', you can provide the _Names_ of your master and slave nodes. This should be the value that is in the _Name_ tag of each of your EC2 machines. See AWS documentation for [more details](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html).
 
 ## Usage guide
 
