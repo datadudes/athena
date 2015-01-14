@@ -124,8 +124,9 @@ class AthenaConfig(object):
         values = yaml.safe_load(config_file)
 
         impala_port = values['cluster']['impala_port'] if 'impala_port' in values['cluster'] else 21050
+        infra_type = values['cluster']['type'].strip() if 'type' in values['cluster'] else 'standard'
         cluster = ClusterConfig(
-            values['cluster']['type'].strip(),
+            infra_type,
             values['cluster']['master'].strip(),
             [slave.strip() for slave in values['cluster']['slaves'].split(',')],
             impala_port
@@ -193,11 +194,15 @@ class AthenaConfig(object):
 
 class ClusterConfig(object):
 
-    def __init__(self, infra_type='aws', master_node='', slave_nodes=[], impala_port=21050):
+    ALLOWED_INFRA_TYPES = ['standard', 'aws']
+
+    def __init__(self, infra_type='standard', master_node='', slave_nodes=[], impala_port=21050):
         self.infra_type = infra_type
         self.master_node = master_node
         self.slave_nodes = slave_nodes
         self.impala_port = impala_port
+        if self.infra_type not in self.ALLOWED_INFRA_TYPES:
+            raise ConfigurationError
 
 
 class SSHConfig(object):
@@ -233,3 +238,9 @@ class SchedulingConfig(object):
         self.celery_broker_url = celery_broker_url
         self.celery_result_backend = celery_result_backend
         self.celery_timezone = celery_timezone
+
+
+class ConfigurationError(Exception):
+    def __init__(self):
+        super(ConfigurationError, self).__init__(
+            "There is an error in the configuration, please check your configuration file")
