@@ -1,6 +1,8 @@
 [![Stories in Ready](https://badge.waffle.io/datadudes/athena.png?label=ready&title=Ready)](https://waffle.io/datadudes/athena)
 Athena
 ======
+[![Live examples](terminal.gif)](https://asciinema.org/a/15439)
+
 Athena is a convenient command line tool that enables you to interact with and query a Hadoop cluster from your local terminal, removing the need for remote SSH sessions. Athena makes the life of every data scientist and engineer a lot easier by providing comprehensive querying features and easy automation of daily tasks, from the convenience of your local command line!
 
 The bulk of Athena's functionality so far was built with Impala in mind, but expect interaction with other parts of your Hadoop cluster to come in the near future!
@@ -35,38 +37,6 @@ $ pip install athena[aws]
 # or both
 $ pip install athena[scheduler,aws]
 ```
-
-## Examples
-
-[![Live examples](terminal.gif)](https://asciinema.org/a/15439)
-
-**Query Impala and show the results in the terminal**
-
-```bash
-$ athena query "SELECT * FROM sample_07 LIMIT 10"
-```
-
-**Query Impala and save the results to a CSV file**
-
-```bash
-$ athena query "SELECT * FROM sample_07" --csv sample.csv
-```
-
-**Run a batch of queries defined in a YAML file and save the results to one or more CSV files**
-
-```bash
-$ athena batch my_queries.yml
-```
-
-**Ship a Pig script to the cluster together with some UDFs and run it**
-
-_(SSH must be configured for this to work)_
-
-```bash
-$ athena pig calculate_avg_salary.pig my_udfs.py
-```
-
-For a detailed usage guide, see below.
 
 ## Configuration
 
@@ -120,4 +90,30 @@ A note on when to use **the _aws_ cluster type**: in most cases the IP addresses
 
 ## Usage guide
 
-coming soon
+**Query Impala and show the results in the terminal**
+
+```bash
+$ athena query "SELECT * FROM sample_07 LIMIT 10"
+```
+
+**Query Impala and save the results to a CSV file**
+
+```bash
+$ athena query "SELECT * FROM sample_07" --csv sample.csv
+```
+
+**Run a batch of queries defined in a YAML file and save the results to one or more CSV files**
+
+```bash
+$ athena batch my_queries.yml
+```
+
+**Ship a Pig script to the cluster together with some UDFs and run it**
+
+_(SSH must be configured for this to work)_
+
+```bash
+$ athena pig calculate_avg_salary.pig my_udfs.py
+```
+
+more coming soon
