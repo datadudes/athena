@@ -20,11 +20,15 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=dependencies,
+    extras_require={
+        'scheduling': ["celery==3.1.17"],
+        'aws': ["boto==2.35.1"],
+    },
     entry_points={
         'console_scripts': [
             'athena = athena.cli:main',
-            ],
-        },
+        ],
+    },
     classifiers=[
         # As from http://pypi.python.org/pypi?%3Aaction=list_classifiers
         # 'Development Status :: 1 - Planning',
@@ -45,5 +49,5 @@ setup(
         'Programming Language :: Python :: 2',
         # 'Programming Language :: Python :: 3',
         'Topic :: Software Development :: Libraries :: Python Modules',
-        ]
+    ]
 )
