@@ -149,5 +149,5 @@ more coming soon
 
 Athena was created with passion by:
 
-[Daan Debie](https://github.com/DandyDev) - [Website](http://dandydev.net/)
-[Marcel Krcah](https://github.com/mkrcah) - [Website](http://marcelkrcah.net/)
+- [Daan Debie](https://github.com/DandyDev) - [Website](http://dandydev.net/)
+- [Marcel Krcah](https://github.com/mkrcah) - [Website](http://marcelkrcah.net/)
