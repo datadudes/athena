@@ -18,17 +18,18 @@ def read_schedules_from(jobs_config_dir):
         title = job.get('title')
         key = slugify(title)
         schedule = job.get('schedule')
-        minute = schedule.get('minute', '*')
-        hour = schedule.get('hour', '*')
-        day_of_week = schedule.get('day_of_week', '*')
-        day_of_month = schedule.get('day_of_month', '*')
-        month_of_year = schedule.get('month_of_year', '*')
-        sched[key] = {
-            'task': 'athena.scheduling.scheduler.process_job',
-            'schedule': crontab(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month,
-                                month_of_year=month_of_year),
-            'args': (yaml_file,)
-        }
+        if schedule:
+            minute = schedule.get('minute', '*')
+            hour = schedule.get('hour', '*')
+            day_of_week = schedule.get('day_of_week', '*')
+            day_of_month = schedule.get('day_of_month', '*')
+            month_of_year = schedule.get('month_of_year', '*')
+            sched[key] = {
+                'task': 'athena.scheduling.scheduler.process_job',
+                'schedule': crontab(minute=minute, hour=hour, day_of_week=day_of_week, day_of_month=day_of_month,
+                                    month_of_year=month_of_year),
+                'args': (yaml_file,)
+            }
     return sched
 
 config = AthenaConfig.load_default()

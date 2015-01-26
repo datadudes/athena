@@ -258,6 +258,41 @@ $ athena copy <src_file(s)> <destination>
 
 For more information, see the [DistCp manual](http://hadoop.apache.org/docs/r1.2.1/distcp.html).
 
+## Scheduling
+
+One way that can make the Athena reporting facilities really powerful, is by automating the sending of reports using the 
+built-in _Scheduler_. By adding a `schedule` section to your report definitions, you can decide when a report should be 
+mailed. Athena scheduling is best used on a server that is on 24.7. Athena uses [Celery](http://www.celeryproject.org/) 
+for its scheduling feature.
+
+To make use of the scheduler, you have to have Celery installed. This happens automatically when you install Athena with 
+`pip install athena[scheduler]`. Furthermore you must provide the `celery_broker_url`, `celery_result_backend` and 
+`celery_timezone` in your Athena configuration. When you use Redis as a broker for Celery, your _broker url_ and _result 
+backend_ will look like: `redis://localhost:6379/1`. For more information on the choice of brokers and the configuration, 
+have a look at the [Celery documentation](http://docs.celeryproject.org/en/latest/getting-started/first-steps-with-celery.html)
+
+To enable the Scheduler, use the following commands:
+
+- start worker(s): `celery -A athena.scheduling.scheduler worker --loglevel=INFO`
+- start scheduler: `celery beat -A athena.scheduling.scheduler --loglevel=INFO`
+
+Add the following to a report that you want to be sent at certain dates/times:
+
+```yaml
+schedule:
+  minute: 15
+  hour: 9
+  day_of_week: 1
+  day_of_month: 10-17
+  month_of_year: 1, 2, 3
+```
+
+Just like with crontabs, you can use a `*` for a interval, to mean "any". If no value is specified, `*` is assumed. In 
+the example, the report will be sent on 9:15 AM, on a monday between the 10th and the 17th of the month, but only in January, 
+February or March.
+
+For more information on possible values for the `schedule`, see the [Celery documentation](http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#crontab-schedules)
+
 ## Future plans
 
 `TODO`
