@@ -163,7 +163,7 @@ as well, if there are no valid keys in your default SSH directory.
 The output from running the Pig script is returned in your terminal. Any files the Pig script creates on the local file
 system of your master node, are not copied over to your local machine.
 
-**Create and mail a report**
+**Create and send a report by email**
 
 One powerful feature of Athena is the ability to create and send reports with query results. For this to work, you need 
 to configure an SMTP service in the Athena configuration. Using a service like [SendGrid](https://sendgrid.com/) is 
@@ -222,6 +222,41 @@ The extension is optional. You can override the recipients by providing email ad
 also redirect the resulting _html_ to the stdout, by using the `--stdout` switch.
 
 The above report will look [like this](http://htmlpreview.github.io/?https://github.com/datadudes/athena/blob/master/example_report.html)
+
+You can also schedule reports to be sent at specific dates/times. See below for more information.
+
+**SSH to a cluster node**
+
+Athena adds a way to conveniently start an SSH session to the master or a slave node. SSH needs to be configured for this.
+
+```bash
+$ athena ssh
+```
+
+By default this creates an SSH session to the master node. Provide `--slave` to create an SSH session to a slave node instead.
+
+**Create SSH tunnel to cluster node**
+
+Athena allows you to create a tunnel from a local port to a port on the master or a slave node. This is especially
+convenient if the Impala port isn't reachable directly from your local machine. SSH needs to be configured for this.
+
+```bash
+$ athena tunnel <local_port> <remote_port>
+```
+
+By default this creates an SSH tunnel to a port on the master node. Provide `--slave` to create an SSH tunnel to the 
+provided port on a slave node instead.
+
+**Distributed copy**
+
+Athena can copy files from and to HDFS and S3 using the Hadoop _DistCp_ utility. SSH needs to be configured for this to 
+work.
+
+```bash
+$ athena copy <src_file(s)> <destination>
+```
+
+For more information, see the [DistCp manual](http://hadoop.apache.org/docs/r1.2.1/distcp.html).
 
 ## Future plans
 

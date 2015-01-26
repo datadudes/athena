@@ -11,10 +11,10 @@ import subprocess
 from os.path import join as path_join
 
 
-def open_ssh_session():
+def open_ssh_session(slave=False):
     config = AthenaConfig.load_default()
     ssh_key = config.ssh.key_path
-    dns = get_dns()
+    dns = get_dns(slave)
     username = config.ssh.username
     cmd = "ssh -i {} {}@{} -oStrictHostKeyChecking=no".format(ssh_key, username, dns)
     subprocess.call(cmd, shell=True)

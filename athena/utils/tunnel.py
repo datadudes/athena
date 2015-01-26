@@ -59,10 +59,10 @@ def forward_tunnel(local_port, remote_host, remote_port, transport):
     ForwardServer(('', local_port), SubHander).serve_forever()
 
 
-def create_tunnel(local_port, remote_port):
+def create_tunnel(local_port, remote_port, slave=False):
     client = None
 
-    remote_host = get_dns()
+    remote_host = get_dns(slave=slave)
 
     print('Connecting to ssh host {}:{} ...'.format(remote_host, remote_port))
     try:

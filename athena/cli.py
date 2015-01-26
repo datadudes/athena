@@ -34,20 +34,22 @@ def batch(queryfile):
 
 
 @main.command()
-def ssh():
+@click.option('--slave/--master', 'slave', default=False)
+def ssh(slave):
     """ Create an interactive SSH session to the master node of the cluster. """
-    open_ssh_session()
+    open_ssh_session(slave)
 
 
 @main.command()
 @click.argument('local_port', type=click.INT)
 @click.argument('remote_port', type=click.INT)
-def tunnel(local_port, remote_port):
+@click.option('--slave/--master', 'slave', default=False)
+def tunnel(local_port, remote_port, slave):
     """
     Create an ssh tunnel to the master node of the cluster, forwarding traffic from the remote_port on the master node
     to the local_port on this machine
     """
-    create_tunnel(local_port, remote_port)
+    create_tunnel(local_port, remote_port, slave)
 
 
 @main.command()
