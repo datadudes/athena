@@ -4,10 +4,8 @@ Athena
 [![Live examples](terminal.gif)](https://asciinema.org/a/15439)
 
 Athena is a convenient command line tool that enables you to interact with and query a Hadoop cluster from your local terminal, 
-removing the need for remote SSH sessions. Athena makes the life of every data scientist and engineer a lot easier by providing comprehensive querying features and easy automation of daily tasks, from the convenience of your local command line!
-
-The bulk of Athena's functionality so far was built with Impala in mind, but expect interaction with other parts of your 
-Hadoop cluster to come in the near future!
+removing the need for remote SSH sessions. Athena makes the life of every data scientist and engineer a lot easier by 
+providing comprehensive querying features and easy automation of daily tasks, from the convenience of your local command line!
 
 **Features**
 
@@ -22,6 +20,9 @@ Hadoop cluster to come in the near future!
 
 All of this works from the local terminal on your laptop/client machine. The only thing Athena needs is either an open 
 port to Impala (for most features) and/or SSH access.
+
+The bulk of Athena's functionality so far was built with Impala in mind, but expect interaction with other parts of your 
+Hadoop cluster to come in the near future!
 
 ## Installation & Requirements
 
@@ -59,7 +60,7 @@ cluster:
 ```
 
 The master node is accessed by all functionality requiring SSH access, such as `athena copy`, `athena pig`. The slave 
-nodes are accessed when running queries, making reports, and anything else that involved Impala. Athena assumes the 
+nodes are accessed when running queries, making reports, and anything else that involves Impala. Athena assumes the 
 Impala daemon is running on your slave nodes and will randomly choose a node from the list of slave nodes for running a 
 query.
 
@@ -96,11 +97,12 @@ scheduling:							# Athena uses Celery for scheduling. See Celery documentation 
 
 A note on when to use **the _aws_ cluster type**: in most cases the IP addresses and/or hostnames of the master and 
 slave nodes are static and known beforehand. If, however, your Hadoop cluster is running on Amazon Web Services, and it 
-regularly spun-up and torn-down (to save costs, for instance), it becomes cumbersome to have to change the configuration 
+is regularly spun-up and torn-down (to save costs, for instance), it becomes cumbersome to have to change the configuration 
 all the time. One way to fix it, is to buy some _elastic ip addresses_ from Amazon and attach them to the nodes each 
 time when spinning up a cluster. Athena provides another way however. If you choose cluster type 'aws', you can provide 
 the _Names_ of your master and slave nodes. This should be the value that is in the _Name_ tag of each of your EC2 
 machines. See AWS documentation for [more details](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html).
+Athena will then use the AWS API to find the hostnames of your cluster nodes.
 
 ## Usage guide
 
@@ -117,8 +119,8 @@ $ athena query "SELECT * FROM sample_07" --csv sample.csv
 ```
 
 Athena uses [Impyla](https://github.com/cloudera/impyla) under the hood for querying Impala. Because Impyla supports
-getting the results back in chunks, memory will is not an issue here. Even for large resultsets, creating the CSV is no
-problem. The results will just be written to disk in chunks.
+retrieving the results in chunks, memory will not be an issue here. Even for large resultsets, creating the CSV is no
+problem. The results will just be written to disk in parts.
 
 The same goes for the `athena batch` command (see below).
 
@@ -133,13 +135,13 @@ have the following format:
 
 ```yaml
 - query: <SQL query>                        # e.g. SELECT * FROM foo WHERE bla < 10
-  output: <name of the CSV file to create>  # e.g. myresults0.csv
+  output: <path of the CSV file to create>  # e.g. myresults0.csv
 - query: <SQL query>
-  output: <name of the CSV file to create>
+  output: <path of the CSV file to create>
 ...
 ```
 
-For repeated queries which only vary slightly, you can use a variable that is substituted with items from a list:
+You can also use the built-in variable substitution to run similar queries without having to copy and paste:
 
 ```yaml
 - query: SELECT * FROM foo WHERE bar = '{{ item }} rocks!'
@@ -150,22 +152,80 @@ For repeated queries which only vary slightly, you can use a variable that is su
   output: {{ item }}.csv
 ```
 
-**Ship a Pig script to the cluster together with some UDFs and run it**
+**Ship a Pig script to the cluster, optionally with UDFs, and run it**
 
 ```bash
 $ athena pig calculate_avg_salary.pig my_udfs.py
 ```
 Athena creates an SSH connection to the master node for shipping the script(s) to the cluster. In order for this to work,
-you should provide an SSH _username_ in your configuration. You can optionally provide a path to an SSH key if there are
-no valid keys in your default SSH directory.
+you should provide an SSH _username_ in your configuration. You can optionally provide a path to an SSH key in the configuration
+as well, if there are no valid keys in your default SSH directory.
 The output from running the Pig script is returned in your terminal. Any files the Pig script creates on the local file
 system of your master node, are not copied over to your local machine.
 
 **Create and mail a report**
 
-Reports are defined using a YAML file with a simple syntax.
+One powerful feature of Athena is the ability to create and send reports with query results. For this to work, you need 
+to configure an SMTP service in the Athena configuration. Using a service like [SendGrid](https://sendgrid.com/) is 
+recommended, but you can also use a local SMTP server.
 
-The report will look [like this](http://htmlpreview.github.io/?https://github.com/datadudes/athena/blob/master/example_report.html)
+Reports are defined using YAML files with a simple syntax:
+
+```yaml
+title: Cloudera Quickstart VM report
+description: A report on all those glorious samples
+recipients: john@mycompany.com mary.ceo@mycompany.com
+data:
+  inline:
+    - name: Sample 07
+      description: Salaries one way
+      type: sql
+      query: SELECT * FROM sample_07 LIMIT 10
+    - name: Sample 08
+      description: Salaries the other way
+      type: sql
+      query: SELECT * FROM sample_08 LIMIT 10
+  csv:
+    - filename: sample07.csv
+      type: sql
+      query: SELECT * FROM sample_07 LIMIT 10
+    - filename: sample08.csv
+      type: sql
+      query: SELECT * FROM sample_08 LIMIT 10 
+```
+
+- **title** defines the title at the top of the mail
+- **description** sets the description that appears below the title in the mail
+- **recipients** is a comma-separated list of email addresses that the report should be delivered to 
+- **data** contains the query blocks that define the data that will be in the report. Athena supports two types:
+  - _inline_ blocks appear as tables in the email
+  - _csv_ blocks will be added as attachments to the email
+
+Both _inline_ and _csv_ blocks also allow variable substitution like with the `athena batch` command (see above).
+  
+Report definitions go as YAML files into a special directory inside the Athena configuration directory: 
+`<athena-config-dir>/reports/`. For instance, on OS X and Linux this will be: `~/.athena/reports/`
+
+You can see a list of available reports with:
+
+```bash
+$ athena report list
+```
+
+You can send a report with:
+
+```bash
+$ athena report my_report.yml
+```
+
+The extension is optional. You can override the recipients by providing email addresses after the report name. You can 
+also redirect the resulting _html_ to the stdout, by using the `--stdout` switch.
+
+The above report will look [like this](http://htmlpreview.github.io/?https://github.com/datadudes/athena/blob/master/example_report.html)
+
+## Future plans
+
+`TODO`
 
 ## Authors
 
@@ -173,3 +233,7 @@ Athena was created with passion by:
 
 - [Daan Debie](https://github.com/DandyDev) - [Website](http://dandydev.net/)
 - [Marcel Krcah](https://github.com/mkrcah) - [Website](http://marcelkrcah.net/)
+
+## Acknowledgements
+
+`TODO`
