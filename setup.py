@@ -8,7 +8,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='athena',
-    version='0.1.0',
+    version='0.5.0',
     url='https://github.com/datadudes/athena',
     license='MIT',
     author='Daan Debie',
