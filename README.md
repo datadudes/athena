@@ -295,7 +295,24 @@ For more information on possible values for the `schedule`, see the [Celery docu
 
 ## Future plans
 
-`TODO`
+We have a lot more in store for Athena! Athena has only recently been released to the public, and while we use it in our 
+daily jobs with great success, it is far from complete, and probably has bugs. 
+
+To have a look at what's currently in our minds for Athena, have a look at the [GitHub issues](https://github.com/datadudes/athena/issues). 
+We are using [Waffle.io](https://waffle.io/datadudes/athena) to make working with GitHub issues easier, and it also 
+gives you insight on what exactly we are working on _right now!_
+
+To list a couple of things that are in the pipeline:
+
+- Automatic interactive configuration initialization
+- Building and submitting Spark Jobs
+- Custom report templates
+- ... **Let us know what you want!**
+
+## Contributing
+
+You're more than welcome to create issues for any bugs you find and ideas you have. Contributions in the form of pull 
+requests are also very much appreciated!
 
 ## Authors
 
@@ -306,4 +323,5 @@ Athena was created with passion by:
 
 ## Acknowledgements
 
-`TODO`
+Athena would not have been possible without the awesome work of [Uri Laserson](https://github.com/laserson) on 
+[Impyla](https://github.com/cloudera/impyla), the Impala library for Python.
