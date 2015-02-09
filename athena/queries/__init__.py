@@ -30,7 +30,9 @@ def get_date_range(days):
     from datetime import datetime, timedelta
     last_midnight = datetime.today().date()
     start_midnight = last_midnight - timedelta(days=days)
-    format_date = lambda d: '{:%Y-%m-%d 00:00:00}'.format(d)
+
+    def format_date(d):
+        return '{:%Y-%m-%d 00:00:00}'.format(d)
     return format_date(start_midnight), format_date(last_midnight)
 
 
