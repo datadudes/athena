@@ -1,6 +1,6 @@
 from impala.dbapi import connect
 from athena.utils.cluster import get_dns
-from athena.utils.config import AthenaConfig
+from athena.utils.config import Config
 from athena.utils.file import write_csv
 
 
@@ -19,7 +19,7 @@ def query_impala(sql, params=None, fetch_one=False):
 
 
 def query_impala_cursor(sql, params=None):
-    config = AthenaConfig.load_default()
+    config = Config.load_default()
     conn = connect(host=get_dns(slave=True), port=config.cluster.impala_port)
     cursor = conn.cursor()
     cursor.execute(sql.encode('utf-8'), params)

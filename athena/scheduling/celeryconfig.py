@@ -4,7 +4,7 @@ from os.path import isfile, join as path_join
 from slugify import slugify
 from celery.schedules import crontab
 import yaml
-from athena.utils.config import ConfigDir, AthenaConfig
+from athena.utils.config import ConfigDir, Config
 
 
 def read_schedules_from(jobs_config_dir):
@@ -32,7 +32,7 @@ def read_schedules_from(jobs_config_dir):
             }
     return sched
 
-config = AthenaConfig.load_default()
+config = Config.load_default()
 BROKER_URL = config.scheduling.celery_broker_url
 CELERY_RESULT_BACKEND = config.scheduling.celery_result_backend
 CELERY_TIMEZONE = config.scheduling.celery_timezone

@@ -1,6 +1,6 @@
 from __future__ import print_function
 import random
-from athena.utils.config import AthenaConfig
+from athena.utils.config import Config
 from IPy import IP
 
 
@@ -16,7 +16,7 @@ def get_ips_or_hostnames(ip_list):
 
 
 def get_dns(slave=False):
-    config = AthenaConfig.load_default()
+    config = Config.load_default()
 
     if config.cluster.infra_type == 'standard':
         if slave:
@@ -58,7 +58,7 @@ def get_dns(slave=False):
 def get_instances_by_tags(tags, conn=None):
     if not conn:
         import boto.ec2
-        config = AthenaConfig.load_default()
+        config = Config.load_default()
         conn = boto.ec2.connect_to_region(
             config.aws.region,
             aws_access_key_id=config.aws.access_key_id,
@@ -72,7 +72,7 @@ def get_instances_by_tags(tags, conn=None):
 
 def get_running_instances():
     import boto.ec2
-    config = AthenaConfig.load_default()
+    config = Config.load_default()
     conn = boto.ec2.connect_to_region(
         config.aws.region,
         aws_access_key_id=config.aws.access_key_id,

@@ -110,134 +110,67 @@ class ConfigDir(object):
         return ConfigDir(path_join(self.path, path))
 
 
-class AthenaConfig(object):
+class Config(object):
 
-    def __init__(self, ssh=None, cluster=None, aws=None, mailing=None, scheduling=None):
-        self.ssh = ssh
-        self.cluster = cluster
-        self.aws = aws
-        self.mailing = mailing
-        self.scheduling = scheduling
+    DEFAULT_CONFIG = {
+        'cluster': {
+            'type': 'standard',
+            'impala_port': 21050
+        },
+        'ssh': {
+            'username': None,
+            'key_path': None
+        },
+        'mailing': {
+            'smtp_host': 'localhost',
+            'smtp_port': 587,
+            'smtp_username': None,
+            'smtp_password': None,
+            'smtp_use_tls': True,
+            'from_address': 'data@example.com'
+        }
+    }
+
+    def __init__(self, config_dict):
+        for k, v in config_dict.iteritems():
+            if isinstance(v, (list, tuple)):
+                setattr(self, k, [Config(x) if isinstance(x, dict) else x for x in v])
+            else:
+                setattr(self, k, Config(v) if isinstance(v, dict) else v)
+
+    def __getattribute__(self, name):
+        val = object.__getattribute__(self, name)
+        if isinstance(val, basestring):
+            return val.strip()
+        else:
+            return val
 
     @staticmethod
     def load(config_file):
         values = yaml.safe_load(config_file)
+        config_dict = Config._merge(dict(Config.DEFAULT_CONFIG), values)
+        return Config(config_dict)
 
-        impala_port = values['cluster']['impala_port'] if 'impala_port' in values['cluster'] else 21050
-        infra_type = values['cluster']['type'].strip() if 'type' in values['cluster'] else 'standard'
-        cluster = ClusterConfig(
-            infra_type,
-            values['cluster']['master'].strip(),
-            [slave.strip() for slave in values['cluster']['slaves'].split(',')],
-            impala_port
-        )
-
-        if 'ssh' in values:
-            username = values['ssh']['username'].strip() if 'username' in values['ssh'] else None
-            key_path = values['ssh']['key_path'].strip() if 'key_path' in values['ssh'] else None
-            ssh = SSHConfig(
-                username,
-                key_path
-            )
-        else:
-            # SSH is always used, so we require a default
-            ssh = SSHConfig()
-
-        if 'aws' in values:
-            aws = AWSConfig(
-                values['aws']['access_key_id'].strip(),
-                values['aws']['secret_access_key'].strip(),
-                values['aws']['region'].strip()
-            )
-        else:
-            aws = None
-
-        if 'mailing' in values:
-            smtp_host = values['mailing']['smtp_host'].strip() if 'smtp_host' in values['mailing'] else 'localhost'
-            smtp_port = values['mailing']['smtp_port'] if 'smtp_port' in values['mailing'] else 587
-            smtp_username = values['mailing']['smtp_username'].strip() if 'smtp_username' in values['mailing'] else None
-            smtp_password = values['mailing']['smtp_password'].strip() if 'smtp_password' in values['mailing'] else None
-            smtp_tls = values['mailing']['smtp_use_tls'] if 'smtp_use_tls' in values['mailing'] else True
-            if 'from_address' in values['mailing']:
-                from_address = values['mailing']['from_address'].strip()
+    @staticmethod
+    def _merge(a, b, path=None):
+        if path is None:
+            path = []
+        for key in b:
+            if key in a:
+                if isinstance(a[key], dict) and isinstance(b[key], dict):
+                    Config._merge(a[key], b[key], path + [str(key)])
+                else:
+                    a[key] = b[key]
             else:
-                from_address = 'data@example.com'
-            mailing = MailingConfig(
-                smtp_host,
-                smtp_port,
-                smtp_username,
-                smtp_password,
-                from_address,
-                smtp_tls
-            )
-        else:
-            mailing = MailingConfig()
-
-        if 'scheduling' in values:
-            scheduling = SchedulingConfig(
-                values['scheduling']['celery_broker_url'].strip(),
-                values['scheduling']['celery_result_backend'].strip(),
-                values['scheduling']['celery_timezone'].strip()
-            )
-        else:
-            scheduling = None
-
-        return AthenaConfig(ssh, cluster, aws, mailing, scheduling)
+                a[key] = b[key]
+        return a
 
     @staticmethod
     def load_default():
         config_file = ConfigDir().open_athena_config()
-        config_obj = AthenaConfig.load(config_file)
+        config_obj = Config.load(config_file)
         config_file.close()
         return config_obj
-
-
-class ClusterConfig(object):
-
-    ALLOWED_INFRA_TYPES = ['standard', 'aws']
-
-    def __init__(self, infra_type='standard', master_node='', slave_nodes=[], impala_port=21050):
-        self.infra_type = infra_type
-        self.master_node = master_node
-        self.slave_nodes = slave_nodes
-        self.impala_port = impala_port
-        if self.infra_type not in self.ALLOWED_INFRA_TYPES:
-            raise ConfigurationError
-
-
-class SSHConfig(object):
-
-    def __init__(self, username=None, key_path=None):
-        self.username = username
-        self.key_path = key_path
-
-
-class AWSConfig(object):
-
-    def __init__(self, access_key_id=None, secret_access_key=None, region=None):
-        self.access_key_id = access_key_id
-        self.secret_access_key = secret_access_key
-        self.region = region
-
-
-class MailingConfig(object):
-
-    def __init__(self, smtp_host='localhost', smtp_port=587, smtp_username=None, smtp_password=None,
-                 from_address='data@example.com', smtp_use_tls=True):
-        self.smtp_host = smtp_host
-        self.smtp_port = smtp_port
-        self.smtp_username = smtp_username
-        self.smtp_password = smtp_password
-        self.smtp_use_tls = smtp_use_tls
-        self.from_address = from_address
-
-
-class SchedulingConfig(object):
-
-    def __init__(self, celery_broker_url=None, celery_result_backend=None, celery_timezone='Europe/Amsterdam'):
-        self.celery_broker_url = celery_broker_url
-        self.celery_result_backend = celery_result_backend
-        self.celery_timezone = celery_timezone
 
 
 class ConfigurationError(Exception):

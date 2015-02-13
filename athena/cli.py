@@ -1,5 +1,5 @@
 import click
-from athena.utils.config import AthenaConfig
+from athena.utils.config import Config
 import queries.query as q
 from utils.cluster import get_dns
 from utils.ssh import MasterNodeSSHClient, open_ssh_session
@@ -57,7 +57,7 @@ def tunnel(local_port, remote_port, slave):
 @click.argument('misc_files', nargs=-1, type=click.Path())
 def pig(pig_script, misc_files):
     """ Run a Pig script on the cluster. """
-    config = AthenaConfig.load_default()
+    config = Config.load_default()
     client = MasterNodeSSHClient(get_dns(), username=config.ssh.username, ssh_key=config.ssh.key_path)
     client.print_output(client.run_pig_script(pig_script, misc_files))
     client.close()
@@ -86,7 +86,7 @@ def report(job, recipients, stdout):
 @click.argument('src', nargs=1, type=click.STRING)
 @click.argument('dst', nargs=1, type=click.STRING)
 def copy(src, dst):
-    config = AthenaConfig.load_default()
+    config = Config.load_default()
     client = MasterNodeSSHClient(get_dns(), username=config.ssh.username, ssh_key=config.ssh.key_path)
     client.print_output(client.dist_copy(src, dst))
     client.fix_hdfs_permissions(dst)

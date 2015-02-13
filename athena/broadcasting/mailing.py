@@ -6,7 +6,7 @@ from os import listdir
 from os.path import isfile, join as path_join
 from athena.queries import query_impala, query_to_csv
 from slugify import slugify
-from athena.utils.config import ConfigDir, AthenaConfig
+from athena.utils.config import ConfigDir, Config
 from athena.utils.file import create_tmp_dir
 
 
@@ -76,7 +76,7 @@ def mail_report(name, recipients=None, stdout=False):
         for c in csvs:
             print c
     else:
-        config = AthenaConfig.load_default()
+        config = Config.load_default()
 
         mailer = SMTPMailer(
             host=config.mailing.smtp_host,

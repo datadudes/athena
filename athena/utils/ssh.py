@@ -5,14 +5,14 @@ from paramiko.client import AutoAddPolicy
 from paramiko.sftp_client import SFTPClient
 import os
 import time
-from athena.utils.config import AthenaConfig
+from athena.utils.config import Config
 from cluster import get_dns
 import subprocess
 from os.path import join as path_join
 
 
 def open_ssh_session(slave=False):
-    config = AthenaConfig.load_default()
+    config = Config.load_default()
     ssh_key = config.ssh.key_path
     dns = get_dns(slave)
     username = config.ssh.username
