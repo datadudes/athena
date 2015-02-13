@@ -1,11 +1,13 @@
 from __future__ import print_function
 import random
-from athena.utils.config import Config
+from athena.utils.config import Config, is_collection
 from IPy import IP
 
 
 def get_ips_or_hostnames(ip_list):
     ip_hostname_list = []
+    if not is_collection(ip_list):
+        ip_list = [ip_list]
     for item in ip_list:
         try:
             ips = IP(item)
@@ -18,18 +20,21 @@ def get_ips_or_hostnames(ip_list):
 def get_dns(slave=False):
     config = Config.load_default()
 
-    if config.cluster.infra_type == 'standard':
+    if config.cluster.type == 'standard':
         if slave:
-            node = random.choice(get_ips_or_hostnames(config.cluster.slave_nodes))
+            node = random.choice(get_ips_or_hostnames(config.cluster.slaves))
         else:
-            node = config.cluster.master_node
+            node = config.cluster.master
     else:
         # only possible type currently, next to 'standard', is 'aws'
         import boto.ec2
         if slave:
-            name = random.choice(config.cluster.slave_nodes)
+            if is_collection(config.cluster.slaves):
+                name = random.choice(config.cluster.slaves)
+            else:
+                name = config.cluster.slaves
         else:
-            name = config.cluster.master_node
+            name = config.cluster.master
 
         conn = boto.ec2.connect_to_region(
             config.aws.region,
