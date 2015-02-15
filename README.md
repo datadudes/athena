@@ -44,8 +44,24 @@ $ pip install athena[scheduler,aws]
 
 ## Configuration
 
-Configuration is done with one simple YAML file. For most use cases, quite little configuration is needed. Execute the 
-following steps to configure Athena:
+Configuration is done with one simple YAML file. For most use cases, quite little configuration is needed. You can create
+a new configuration by using:
+```bash
+$ athena init
+```
+and answering the configuration questions.
+
+The master node is accessed by all functionality requiring SSH access, such as `athena copy`, `athena pig`. The slave 
+nodes are accessed when running queries, making reports, and anything else that involves Impala. Athena assumes the 
+Impala daemon is running on your slave nodes and will randomly choose a node from the list of slave nodes for running a 
+query.
+
+#### Advanced configuration
+
+To get the most out of Athena, you can make use of the more advanced configuration options.
+
+If you have not created a configuration automatically by using `athena init`, you can manually configure Athena by 
+executing the following steps:
 
 1. Create a `.athena` directory in your home directory. 
 	- On OS X, this should be: `/Users/myusername/.athena`
@@ -59,15 +75,8 @@ cluster:
   slaves: <comma separated list of hostnames/ips of your slave nodes> # all the other nodes (data nodes)
 ```
 
-The master node is accessed by all functionality requiring SSH access, such as `athena copy`, `athena pig`. The slave 
-nodes are accessed when running queries, making reports, and anything else that involves Impala. Athena assumes the 
-Impala daemon is running on your slave nodes and will randomly choose a node from the list of slave nodes for running a 
-query.
-
-#### Complete configuration example
-
-Below is a documented example of all the configuration options with their default values. As you can see, only the 
-`cluster > master` and `cluster > slaves` need to be provided, as they don't have defaults.
+Use the following reference to find all the possible configuration options with their default values. As you can see, 
+only the `cluster > master` and `cluster > slaves` need to be provided, as they don't have defaults.
 
 ```yaml
 cluster:                            # Basic cluster information

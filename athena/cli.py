@@ -1,10 +1,12 @@
 import click
-from athena.utils.config import Config
+from click.exceptions import UsageError
+from athena.utils.config import Config, ConfigDir
 import queries.query as q
 from utils.cluster import get_dns
 from utils.ssh import MasterNodeSSHClient, open_ssh_session
 from utils.tunnel import create_tunnel
 from broadcasting.mailing import mail_report, list_reports
+from yaml import safe_dump
 
 
 @click.group()
@@ -91,3 +93,46 @@ def copy(src, dst):
     client.print_output(client.dist_copy(src, dst))
     client.fix_hdfs_permissions(dst)
     client.close()
+
+
+@main.command()
+def init():
+    config_dir = ConfigDir()
+
+    def options(opt_list):
+        def value_proc(value):
+            if value in opt_list:
+                return value
+            else:
+                raise UsageError("Response should be in [{}]".format(','.join([str(x) for x in opt_list])))
+        return value_proc
+
+    if config_dir.config_exists() and click.prompt(
+            "Athena config already exists, are you sure you want to overwrite? (Y/N)",
+            default='N', value_proc=options(['Y', 'y', 'N', 'n'])) == 'N':
+        click.echo("Configuration already exists. No configuration initialized.")
+        return
+
+    config = {'cluster': {}}
+    config['cluster']['type'] = click.prompt("Do you want to define your cluster by ip/hostnames or by "
+                                             "Amazon AWS tag names? (standard/aws)",
+                                             default='standard', value_proc=options(['standard', 'aws']))
+    if config['cluster']['type'] == 'standard':
+        master_prompt = "IP address or hostname of your master node"
+        slaves_prompt = "Comma-separated list of IP addresses and/or hostnames of your slave nodes"
+    else:
+        master_prompt = "AWS Name tag of your master node"
+        slaves_prompt = "Comma-separated list of the AWS Name tags of your slave nodes"
+
+    config['cluster']['master'] = click.prompt(master_prompt, type=str)
+    slaves = click.prompt(slaves_prompt, type=str).split(',')
+    config['cluster']['slaves'] = [x.strip() for x in slaves] if len(slaves) > 1 else slaves[0].strip()
+
+    if config['cluster']['type'] == 'aws':
+        config['aws'] = {}
+        config['aws']['region'] = click.prompt("AWS region where your cluster is hosted", type=str)
+        config['aws']['access_key_id'] = click.prompt("Your AWS Access Key ID", type=str)
+        config['aws']['secret_access_key'] = click.prompt("Your AWS Secret Access Key", type=str)
+
+    config_dir.write('config.yml', safe_dump(config, default_flow_style=False))
+    click.echo("Configuration succesfully written!")

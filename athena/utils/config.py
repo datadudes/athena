@@ -3,7 +3,7 @@ from __future__ import with_statement
 
 import errno
 from os import remove, removedirs
-from os.path import isfile, join as path_join
+from os.path import isfile, join as path_join, exists
 from click.utils import get_app_dir
 from athena.utils.file import mkdir_p, touchopen
 import yaml
@@ -30,6 +30,13 @@ class ConfigDir(object):
 
     def __repr__(self):
         return '<config-dir: {}>'.format(self.path)
+
+    def file_exists(self, filename):
+        fn = path_join(self.path, filename)
+        return exists(fn) and isfile(fn)
+
+    def config_exists(self):
+        return self.file_exists('config.yml')
 
     def open_file(self, filename, mode='r'):
         """Returns file object from given filename. Creates it if it doesn't exist """
@@ -142,6 +149,8 @@ class Config(object):
         val = object.__getattribute__(self, name)
         if isinstance(val, basestring):
             return val.strip()
+        elif isinstance(val, (list, tuple)):
+            return [x.strip() for x in val]
         else:
             return val
 
