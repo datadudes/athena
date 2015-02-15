@@ -139,6 +139,10 @@ class Config(object):
     }
 
     def __init__(self, config_dict):
+        """
+        From a dictionary with arbitrary nesting, recursively creates a class hierarchy allowing dot-notation access to
+        attributes with any depth.
+        """
         for k, v in config_dict.iteritems():
             if isinstance(v, (list, tuple)):
                 setattr(self, k, [Config(x) if isinstance(x, dict) else x for x in v])
@@ -162,6 +166,11 @@ class Config(object):
 
     @staticmethod
     def _merge(a, b, path=None):
+        """
+        Recursively merges dicts A and B so that any key/value in dict B on a certain path, will overwrite that same
+        key/value in dict A if it exists. Config uses _merge to combine a user config with the default config, overriding
+        the latter values with the former.
+        """
         if path is None:
             path = []
         for key in b:
