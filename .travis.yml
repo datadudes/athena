@@ -1,9 +1,12 @@
 language: python
 install:
   - pip install tox==1.8.1
+  - pip install coveralls
 script:
   - tox
+after_success:
+  coveralls
 env:
+  - TOXENV=flake8
   - TOXENV=py26
   - TOXENV=py27
-  - TOXENV=flake8
