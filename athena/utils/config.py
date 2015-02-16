@@ -168,8 +168,8 @@ class Config(object):
     def _merge(a, b, path=None):
         """
         Recursively merges dicts A and B so that any key/value in dict B on a certain path, will overwrite that same
-        key/value in dict A if it exists. Config uses _merge to combine a user config with the default config, overriding
-        the latter values with the former.
+        key/value in dict A if it exists. Config uses _merge to combine a user config with the default config,
+        overriding the latter values with the former.
         """
         if path is None:
             path = []
