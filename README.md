@@ -1,4 +1,5 @@
 [![Stories in Ready](https://badge.waffle.io/datadudes/athena.png?label=ready&title=Ready)](https://waffle.io/datadudes/athena)
+[![Build Status](https://travis-ci.org/datadudes/athena.svg?branch=master)](https://travis-ci.org/datadudes/athena)
 Athena
 ======
 [![Live examples](terminal.gif)](https://asciinema.org/a/15439)
