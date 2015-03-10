@@ -6,15 +6,21 @@ from setuptools import find_packages, setup
 with open('requirements.txt') as f:
     dependencies = f.read().splitlines()
 
+try:
+    import pypandoc
+    long_desc = pypandoc.convert('README.md', 'rst')
+except ImportError:
+    long_desc = __doc__
+
 setup(
     name='athena',
-    version='0.5.0',
+    version='0.6.0',
     url='https://github.com/datadudes/athena',
     license='MIT',
     author='Daan Debie, Marcel Krcah',
     author_email='debie.daan@gmail.com, marcel.krcah@gmail.com',
     description='Interact with your Hadoop cluster from the convenience of your local command line.',
-    long_description=__doc__,
+    long_description=long_desc,
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
     zip_safe=False,
@@ -44,10 +50,11 @@ setup(
         'Operating System :: POSIX',
         'Operating System :: MacOS',
         'Operating System :: Unix',
-        'Operating System :: Microsoft :: Windows',
+        # 'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         # 'Programming Language :: Python :: 3',
-        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Database',
+        'Topic :: Utilities',
     ]
 )
