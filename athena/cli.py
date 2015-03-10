@@ -2,11 +2,13 @@ import click
 from click.exceptions import UsageError
 from athena.utils.config import Config, ConfigDir
 import queries.query as q
+from queries import query_impala
 from utils.cluster import get_dns
 from utils.ssh import MasterNodeSSHClient, open_ssh_session
 from utils.tunnel import create_tunnel
 from broadcasting.mailing import mail_report, list_reports
 from yaml import safe_dump
+from broadcasting import slack
 
 
 @click.group()
@@ -82,6 +84,17 @@ def report(job, recipients, stdout):
             mail_report(job, recipients, stdout)
         except ValueError as e:
             raise click.BadParameter(e.message)
+
+
+@main.command()
+@click.argument('sql', type=click.STRING)
+@click.option('--channel', '-c', type=click.STRING, help='Slack channel you want to broadcast this query to')
+@click.option('--username', '-u', type=click.STRING, help='Slack user that broadcasts this query')
+@click.option('--icon', '-i', type=click.STRING, help='Icon for the resulting Slack message')
+@click.option('--title', '-t', type=click.STRING, help='Title for this query')
+def broadcast(sql, channel, username, icon, title):
+    data, headers = query_impala(sql)
+    slack.send_table(title, headers, data, username, channel, icon)
 
 
 @main.command()

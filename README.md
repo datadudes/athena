@@ -90,6 +90,11 @@ mailing:
   smtp_password: <empty>
   smtp_use_tls: true
   from_address: data@example.com    # email address that is used as the "from:" address when sending reports
+slack:
+  token: <empty>                    # Slack API token
+  default_channel: <empty>          # Default Slack channel to broadcast queries to
+  default_username: athena          # Default username to broadcast queries as in Slack
+  default_icon: <empty>             # Default icon for the user that queries are broadcasted as. Can be emoji or URL to picture
 ssh:
   username: <empty>                 # username that should be used when creating an SSH session or tunnel
   key_path: <empty>                 # path to private key for creating an SSH session or tunnel
@@ -158,6 +163,12 @@ You can also use the built-in variable substitution to run similar queries witho
   - "Impala"
   - "Hadoop"
   output: {{ item }}.csv
+```
+
+**Broadcast query results to Slack**
+
+```bash
+$ athena broadcast "SELECT * FROM sample_07 LIMIT 10" --channel data-stuff --icon :newspaper:
 ```
 
 **Ship a Pig script to the cluster, optionally with UDFs, and run it**

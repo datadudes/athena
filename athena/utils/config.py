@@ -135,6 +135,12 @@ class Config(object):
             'smtp_password': None,
             'smtp_use_tls': True,
             'from_address': 'data@example.com'
+        },
+        'slack': {
+            'token': None,
+            'default_channel': None,
+            'default_username': 'athena',
+            'default_icon': None
         }
     }
 
