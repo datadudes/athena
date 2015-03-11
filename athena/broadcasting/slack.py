@@ -1,4 +1,3 @@
-from slacker import Slacker
 from tabulate import tabulate
 from athena.utils.config import Config
 
@@ -7,6 +6,8 @@ def send_msg(text, username=None, channel=None, icon=None):
     """
     Send a message to Slack
     """
+
+    from slacker import Slacker
 
     config = Config.load_default()
     if not config.slack.token:
@@ -29,6 +30,7 @@ def send_msg(text, username=None, channel=None, icon=None):
         icon_url = i
 
     response = slack.chat.post_message(ch, text, username=u, icon_url=icon_url, icon_emoji=icon_emoji)
+    return response
 
 
 def send_table(title, headers, data, username, channel, icon):
