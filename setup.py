@@ -14,7 +14,7 @@ except ImportError:
 
 setup(
     name='athena',
-    version='0.6.0',
+    version='0.7.0',
     url='https://github.com/datadudes/athena',
     license='MIT',
     author='Daan Debie, Marcel Krcah',
@@ -23,6 +23,7 @@ setup(
     long_description=long_desc,
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
+    package_data={'athena.broadcasting': ['templates/*']},
     zip_safe=False,
     platforms='any',
     install_requires=dependencies,
