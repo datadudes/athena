@@ -134,7 +134,8 @@ class Config(object):
             'smtp_username': None,
             'smtp_password': None,
             'smtp_use_tls': True,
-            'from_address': 'data@example.com'
+            'from_address': 'data@example.com',
+            'default_template': 'datamail.html'
         },
         'slack': {
             'token': None,

@@ -1,5 +1,6 @@
 import click
 from click.exceptions import UsageError
+from jinja2 import TemplateNotFound
 from athena.utils.config import Config, ConfigDir
 import queries.query as q
 from queries import query_impala
@@ -71,7 +72,8 @@ def pig(pig_script, misc_files):
 @click.argument('job', nargs=1, type=click.STRING)
 @click.argument('recipients', nargs=-1, type=click.STRING)
 @click.option('--stdout/--email', default=False)
-def report(job, recipients, stdout):
+@click.option('--template', '-t', type=click.STRING, help='Template to use')
+def report(job, recipients, stdout, template):
     """ Generate and mail a report, optionally with attachments """
     if job == 'list':
         list_reports()
@@ -81,9 +83,11 @@ def report(job, recipients, stdout):
                 recipients = None
             if not job.endswith('.yml'):
                 job += '.yml'
-            mail_report(job, recipients, stdout)
+            mail_report(job, recipients, stdout, template)
         except ValueError as e:
             raise click.BadParameter(e.message)
+        except TemplateNotFound as e:
+            raise click.BadParameter("Template '{}' cannot be found!".format(e.message))
 
 
 @main.command()

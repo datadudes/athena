@@ -1,4 +1,4 @@
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, PackageLoader, ChoiceLoader, FileSystemLoader
 from mailshake import SMTPMailer, EmailMessage
 import yaml
 from datetime import datetime
@@ -10,8 +10,20 @@ from athena.utils.config import ConfigDir, Config
 from athena.utils.file import create_tmp_dir
 
 
-def mail_report(name, recipients=None, stdout=False):
+def mail_report(name, recipients=None, stdout=False, template=None):
     reports_dir = ConfigDir().sub('reports').path
+    config = Config.load_default()
+    template_dir = ConfigDir().sub('templates').path
+    template_name = template or config.mailing.default_template
+    if not template_name.endswith('.html'):
+        template_name += '.html'
+    loader = ChoiceLoader([
+        FileSystemLoader(template_dir),
+        PackageLoader('athena.broadcasting', 'templates')
+    ])
+    env = Environment(loader=loader)
+    template = env.get_template(template_name)
+
     job_file = path_join(reports_dir, name)
     if not isfile(job_file):
         raise ValueError("{} does not exist or is not a readable file!".format(name))
@@ -58,17 +70,13 @@ def mail_report(name, recipients=None, stdout=False):
                         processed_filename = filenameretrieve.replace("{{ item }}", variable)
                         csv_path_instance = path_join(tmpdir, processed_filename)
                         query_to_csv(processed_sql_query, csv_path_instance)
-                        print(csv_path_instance)
                         csvs.append({'name': processed_filename, 'path': csv_path_instance})
                 else:
                     query_to_csv(sql_query, csv_path)
-                    print(csv_path)
                     csvs.append({'name': filenameretrieve, 'path': csv_path})
             else:
                 raise ValueError("{} contains csv item of unknown type ({})!".format(name, item['type']))
 
-    env = Environment(loader=PackageLoader('athena.broadcasting', 'templates'))
-    template = env.get_template('datamail.html')
     html = template.render(title=title, description=description, today=today, blocks=blocks)
     if stdout:
         print html
@@ -76,8 +84,6 @@ def mail_report(name, recipients=None, stdout=False):
         for c in csvs:
             print c
     else:
-        config = Config.load_default()
-
         mailer = SMTPMailer(
             host=config.mailing.smtp_host,
             port=config.mailing.smtp_port,
