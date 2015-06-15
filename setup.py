@@ -14,7 +14,7 @@ except ImportError:
 
 setup(
     name='athena',
-    version='0.7.0',
+    version='0.8.0',
     url='https://github.com/datadudes/athena',
     license='MIT',
     author='Daan Debie, Marcel Krcah',
