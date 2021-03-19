@@ -5,5 +5,5 @@ tabulate==0.7.3
 PyYAML==3.11
 mailshake==0.9.8
 python-slugify==0.1.0
-jinja2==2.7.3
+jinja2==2.11.3
 ipy==0.81
